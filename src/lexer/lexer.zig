@@ -25,24 +25,75 @@ pub const Lexer = struct {
         } else {
             self.ch = self.input[self.readPosition];
         }
+        // std.debug.print("{c}\n", .{self.ch});
         self.position = self.readPosition;
         self.readPosition += 1;
     }
 
+    pub fn readIdentifier(self: *Lexer) []const u8 {
+        const position = self.position;
+        while (isLetter(self.ch)) {
+            self.readChar();
+        }
+        return self.input[position..self.position];
+    }
+
     pub fn nextToken(self: *Lexer) token.Token {
+        self.skipWhitespace();
+
         const tok = switch (self.ch) {
-            '=' => token.Token{ .Type = "ASSIGN", .Literal = "=" },
-            '+' => token.Token{ .Type = "PLUS", .Literal = "+" },
-            '(' => token.Token{ .Type = "LPAREN", .Literal = "(" },
-            ')' => token.Token{ .Type = "RPAREN", .Literal = ")" },
-            '{' => token.Token{ .Type = "LBRACE", .Literal = "{" },
-            '}' => token.Token{ .Type = "RBRACE", .Literal = "}" },
-            ',' => token.Token{ .Type = "COMMA", .Literal = "," },
-            ';' => token.Token{ .Type = "SEMICOLON", .Literal = ";" },
-            else => token.Token{ .Type = "EOF", .Literal = "" },
+            '=' => token.Token{ .Type = "ASSIGN", .Literal = token.ASSIGN },
+            '+' => token.Token{ .Type = "PLUS", .Literal = token.PLUS },
+            '(' => token.Token{ .Type = "LPAREN", .Literal = token.LPAREN },
+            ')' => token.Token{ .Type = "RPAREN", .Literal = token.RPAREN },
+            '{' => token.Token{ .Type = "LBRACE", .Literal = token.LBRACE },
+            '}' => token.Token{ .Type = "RBRACE", .Literal = token.RBRACE },
+            ',' => token.Token{ .Type = "COMMA", .Literal = token.COMMA },
+            ';' => token.Token{ .Type = "SEMICOLON", .Literal = token.SEMICOLON },
+            0 => token.Token{ .Type = "EOF", .Literal = "" },
+            else => {
+                if (isLetter(self.ch)) {
+                    const literal = self.readIdentifier();
+                    return token.Token{
+                        .Literal = literal,
+                        .Type = token.lookupIdent(literal),
+                    };
+                }
+
+                if (isDigit(self.ch)) {
+                    return token.Token{ .Type = token.INT, .Literal = self.readNumber() };
+                } else {
+                    return token.Token{
+                        .Type = token.ILLEGAL,
+                        .Literal = &[_]u8{self.ch},
+                    };
+                }
+            },
         };
 
         self.readChar(); // Move to the next character for the following token
         return tok;
     }
+
+    fn skipWhitespace(self: *Lexer) void {
+        while ((self.ch == ' ') or (self.ch == '\t') or (self.ch == '\n') or (self.ch == '\r')) {
+            self.readChar();
+        }
+    }
+
+    fn readNumber(self: *Lexer) []const u8 {
+        const position = self.position;
+        while (isDigit(self.ch)) {
+            self.readChar();
+        }
+        return self.input[position..self.position];
+    }
 };
+
+pub fn isLetter(ch: u8) bool {
+    return ('a' <= ch and ch <= 'z') or ('A' <= ch and ch <= 'Z') or (ch == '_');
+}
+
+pub fn isDigit(ch: u8) bool {
+    return ('0' <= ch) and (ch <= '9');
+}
