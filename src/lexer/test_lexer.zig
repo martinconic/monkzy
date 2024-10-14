@@ -12,6 +12,14 @@ test "next token" {
         \\};
         \\
         \\let result = add(five, ten);
+        \\!-/*5;
+        \\5 < 10 > 5;
+        \\
+        \\if (5 < 10) {
+        \\  return true;
+        \\} else {
+        \\    return false;
+        \\}
     ;
     const tests = [_]struct {
         expectedType: []const u8,
@@ -54,6 +62,36 @@ test "next token" {
         .{ .expectedType = "IDENT", .expectedLiteral = "ten" },
         .{ .expectedType = "RPAREN", .expectedLiteral = token.RPAREN },
         .{ .expectedType = "SEMICOLON", .expectedLiteral = token.SEMICOLON },
+        .{ .expectedType = "BANG", .expectedLiteral = token.BANG },
+        .{ .expectedType = "MINUS", .expectedLiteral = token.MINUS },
+        .{ .expectedType = "SLASH", .expectedLiteral = token.SLASH },
+        .{ .expectedType = "ASTERIX", .expectedLiteral = token.ASTERIX },
+        .{ .expectedType = "INT", .expectedLiteral = "5" },
+        .{ .expectedType = "SEMICOLON", .expectedLiteral = token.SEMICOLON },
+        .{ .expectedType = "INT", .expectedLiteral = "5" },
+        .{ .expectedType = "LT", .expectedLiteral = token.LT },
+        .{ .expectedType = "INT", .expectedLiteral = "10" },
+        .{ .expectedType = "GT", .expectedLiteral = token.GT },
+        .{ .expectedType = "INT", .expectedLiteral = "5" },
+        .{ .expectedType = "SEMICOLON", .expectedLiteral = token.SEMICOLON },
+        .{ .expectedType = "IF", .expectedLiteral = "if" },
+        .{ .expectedType = "LPAREN", .expectedLiteral = token.LPAREN },
+        .{ .expectedType = "INT", .expectedLiteral = "5" },
+        .{ .expectedType = "LT", .expectedLiteral = token.LT },
+        .{ .expectedType = "INT", .expectedLiteral = "10" },
+        .{ .expectedType = "RPAREN", .expectedLiteral = token.RPAREN },
+        .{ .expectedType = "LBRACE", .expectedLiteral = token.LBRACE },
+        .{ .expectedType = "RETURN", .expectedLiteral = "return" },
+        .{ .expectedType = "TRUE", .expectedLiteral = "true" },
+        .{ .expectedType = "SEMICOLON", .expectedLiteral = token.SEMICOLON },
+        .{ .expectedType = "RBRACE", .expectedLiteral = token.RBRACE },
+        .{ .expectedType = "ELSE", .expectedLiteral = "else" },
+        .{ .expectedType = "LBRACE", .expectedLiteral = token.LBRACE },
+        .{ .expectedType = "RETURN", .expectedLiteral = "return" },
+        .{ .expectedType = "FALSE", .expectedLiteral = "false" },
+        .{ .expectedType = "SEMICOLON", .expectedLiteral = token.SEMICOLON },
+        .{ .expectedType = "RBRACE", .expectedLiteral = token.RBRACE },
+
         .{ .expectedType = "EOF", .expectedLiteral = "" },
     };
 

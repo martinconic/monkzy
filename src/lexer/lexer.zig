@@ -44,6 +44,12 @@ pub const Lexer = struct {
         const tok = switch (self.ch) {
             '=' => token.Token{ .Type = "ASSIGN", .Literal = token.ASSIGN },
             '+' => token.Token{ .Type = "PLUS", .Literal = token.PLUS },
+            '-' => token.Token{ .Type = "MINUS", .Literal = token.MINUS },
+            '!' => token.Token{ .Type = "BANG", .Literal = token.BANG },
+            '/' => token.Token{ .Type = "SLASH", .Literal = token.SLASH },
+            '*' => token.Token{ .Type = "ASTERIX", .Literal = token.ASTERIX },
+            '<' => token.Token{ .Type = "LT", .Literal = token.LT },
+            '>' => token.Token{ .Type = "GT", .Literal = token.GT },
             '(' => token.Token{ .Type = "LPAREN", .Literal = token.LPAREN },
             ')' => token.Token{ .Type = "RPAREN", .Literal = token.RPAREN },
             '{' => token.Token{ .Type = "LBRACE", .Literal = token.LBRACE },
