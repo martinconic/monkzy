@@ -25,9 +25,16 @@ pub const Lexer = struct {
         } else {
             self.ch = self.input[self.readPosition];
         }
-        // std.debug.print("{c}\n", .{self.ch});
         self.position = self.readPosition;
         self.readPosition += 1;
+    }
+
+    pub fn peekChar(self: *Lexer) u8 {
+        if (self.readPosition >= self.input.len) {
+            return 0;
+        } else {
+            return self.input[self.readPosition];
+        }
     }
 
     pub fn readIdentifier(self: *Lexer) []const u8 {
@@ -41,22 +48,42 @@ pub const Lexer = struct {
     pub fn nextToken(self: *Lexer) token.Token {
         self.skipWhitespace();
 
-        const tok = switch (self.ch) {
-            '=' => token.Token{ .Type = "ASSIGN", .Literal = token.ASSIGN },
-            '+' => token.Token{ .Type = "PLUS", .Literal = token.PLUS },
-            '-' => token.Token{ .Type = "MINUS", .Literal = token.MINUS },
-            '!' => token.Token{ .Type = "BANG", .Literal = token.BANG },
-            '/' => token.Token{ .Type = "SLASH", .Literal = token.SLASH },
-            '*' => token.Token{ .Type = "ASTERIX", .Literal = token.ASTERIX },
-            '<' => token.Token{ .Type = "LT", .Literal = token.LT },
-            '>' => token.Token{ .Type = "GT", .Literal = token.GT },
-            '(' => token.Token{ .Type = "LPAREN", .Literal = token.LPAREN },
-            ')' => token.Token{ .Type = "RPAREN", .Literal = token.RPAREN },
-            '{' => token.Token{ .Type = "LBRACE", .Literal = token.LBRACE },
-            '}' => token.Token{ .Type = "RBRACE", .Literal = token.RBRACE },
-            ',' => token.Token{ .Type = "COMMA", .Literal = token.COMMA },
-            ';' => token.Token{ .Type = "SEMICOLON", .Literal = token.SEMICOLON },
-            0 => token.Token{ .Type = "EOF", .Literal = "" },
+        var tok: token.Token = undefined;
+
+        switch (self.ch) {
+            '=' => {
+                if (self.peekChar() == '=') {
+                    const ch = self.ch;
+                    self.readChar();
+                    const literal = [2]u8{ ch, self.ch };
+                    tok = token.Token{ .Type = "EQ", .Literal = &literal };
+                } else {
+                    tok = token.Token{ .Type = "ASSIGN", .Literal = token.ASSIGN };
+                }
+            },
+            '+' => tok = token.Token{ .Type = "PLUS", .Literal = token.PLUS },
+            '-' => tok = token.Token{ .Type = "MINUS", .Literal = token.MINUS },
+            '!' => {
+                if (self.peekChar() == '=') {
+                    const ch = self.ch;
+                    self.readChar();
+                    const literal = [2]u8{ ch, self.ch };
+                    tok = token.Token{ .Type = "NOT_EQ", .Literal = &literal };
+                } else {
+                    tok = token.Token{ .Type = "BANG", .Literal = token.BANG };
+                }
+            },
+            '/' => tok = token.Token{ .Type = "SLASH", .Literal = token.SLASH },
+            '*' => tok = token.Token{ .Type = "ASTERIX", .Literal = token.ASTERIX },
+            '<' => tok = token.Token{ .Type = "LT", .Literal = token.LT },
+            '>' => tok = token.Token{ .Type = "GT", .Literal = token.GT },
+            '(' => tok = token.Token{ .Type = "LPAREN", .Literal = token.LPAREN },
+            ')' => tok = token.Token{ .Type = "RPAREN", .Literal = token.RPAREN },
+            '{' => tok = token.Token{ .Type = "LBRACE", .Literal = token.LBRACE },
+            '}' => tok = token.Token{ .Type = "RBRACE", .Literal = token.RBRACE },
+            ',' => tok = token.Token{ .Type = "COMMA", .Literal = token.COMMA },
+            ';' => tok = token.Token{ .Type = "SEMICOLON", .Literal = token.SEMICOLON },
+            0 => tok = token.Token{ .Type = "EOF", .Literal = "" },
             else => {
                 if (isLetter(self.ch)) {
                     const literal = self.readIdentifier();
@@ -64,9 +91,7 @@ pub const Lexer = struct {
                         .Literal = literal,
                         .Type = token.lookupIdent(literal),
                     };
-                }
-
-                if (isDigit(self.ch)) {
+                } else if (isDigit(self.ch)) {
                     return token.Token{ .Type = token.INT, .Literal = self.readNumber() };
                 } else {
                     return token.Token{
@@ -75,7 +100,7 @@ pub const Lexer = struct {
                     };
                 }
             },
-        };
+        }
 
         self.readChar(); // Move to the next character for the following token
         return tok;

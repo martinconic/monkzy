@@ -23,6 +23,9 @@ pub const SLASH = "/";
 pub const LT = "<";
 pub const GT = ">";
 
+pub const EQ = "==";
+pub const NOT_EQ = "!=";
+
 pub const COMMA = ",";
 pub const SEMICOLON = ";";
 

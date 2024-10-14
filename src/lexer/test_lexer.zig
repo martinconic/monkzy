@@ -20,6 +20,9 @@ test "next token" {
         \\} else {
         \\    return false;
         \\}
+        \\
+        \\10 == 10;
+        \\10 != 9;
     ;
     const tests = [_]struct {
         expectedType: []const u8,
@@ -91,6 +94,14 @@ test "next token" {
         .{ .expectedType = "FALSE", .expectedLiteral = "false" },
         .{ .expectedType = "SEMICOLON", .expectedLiteral = token.SEMICOLON },
         .{ .expectedType = "RBRACE", .expectedLiteral = token.RBRACE },
+        .{ .expectedType = "INT", .expectedLiteral = "10" },
+        .{ .expectedType = "EQ", .expectedLiteral = token.EQ },
+        .{ .expectedType = "INT", .expectedLiteral = "10" },
+        .{ .expectedType = "SEMICOLON", .expectedLiteral = token.SEMICOLON },
+        .{ .expectedType = "INT", .expectedLiteral = "10" },
+        .{ .expectedType = "NOT_EQ", .expectedLiteral = token.NOT_EQ },
+        .{ .expectedType = "INT", .expectedLiteral = "9" },
+        .{ .expectedType = "SEMICOLON", .expectedLiteral = token.SEMICOLON },
 
         .{ .expectedType = "EOF", .expectedLiteral = "" },
     };
