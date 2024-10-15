@@ -1,6 +1,6 @@
 const std = @import("std");
-const lexer = @import("lexer.zig");
-const token = @import("token.zig");
+const lexer = @import("lexer/lexer.zig");
+const token = @import("token/token.zig");
 
 test "next token" {
     const input =
